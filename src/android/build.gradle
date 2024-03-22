@@ -9,5 +9,5 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.yalantis:ucrop:2.2.9-native'
+    implementation 'com.github.yalantis:ucrop:2.2.4'
 }
