@@ -83,10 +83,12 @@ static inline NSString *PELocalizedString(NSString *key, NSString *comment)
     self.navigationController.navigationBar.translucent = NO;
     self.navigationController.toolbar.translucent = NO;
 
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:PELocalizedString(@"Cancel", nil)
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:PELocalizedString(@"Cancel", nil)
+                                                                                          style:UIBarButtonItemStyleBordered
                                                                                           target:self
                                                                                           action:@selector(cancel:)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:PELocalizedString(@"Done", nil)
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:PELocalizedString(@"Done", nil)
+                                                                                          style:UIBarButtonItemStyleBordered
                                                                                            target:self
                                                                                            action:@selector(done:)];
 
