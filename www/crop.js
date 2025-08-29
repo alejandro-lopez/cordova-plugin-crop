@@ -9,7 +9,8 @@ var crop = module.exports = function cropImage (success, fail, image, options) {
   options.showCropGrid = !!options.showCropGrid
   options.toolbarTitle = options.toolbarTitle || ""
   options.toolbarColor = options.toolbarColor || "#FFFFFF"
-  options.statusBarColor  = options.statusBarColor || "#F5F5F5"
+  options.statusBarLight  = options.statusBarLight || true
+  options.navigationBarLight = options.navigationBarLight || true
   options.toolbarWidgetColor = options.toolbarWidgetColor || "#000000"
   options.rootViewBackgroundColor = options.rootViewBackgroundColor || "#20242F"
   options.activeControlsWidgetColor = options.activeControlsWidgetColor || "#FF6300"
