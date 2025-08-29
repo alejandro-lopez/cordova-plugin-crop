@@ -36,8 +36,8 @@ public class CropPlugin extends CordovaPlugin {
             boolean allowRotate = options.has("allowRotate") ? options.getBoolean("allowRotate") : false;
             boolean keepCropAspectRatio = options.has("keepCropAspectRatio") ? options.getBoolean("keepCropAspectRatio") : true;
             boolean showCropGrid = options.has("showCropGrid") ? options.getBoolean("showCropGrid") : true;
-			boolean statusBarLight = options.has("statusBarLight") ? options.getBoolean("statusBarLight") : true
-			boolean navigationBarLight = options.has("navigationBarLight") ? options.getBoolean("navigationBarLight") : true
+			boolean statusBarLight = options.has("statusBarLight") ? options.getBoolean("statusBarLight") : true;
+			boolean navigationBarLight = options.has("navigationBarLight") ? options.getBoolean("navigationBarLight") : true;
             String toolbarTitle = options.has("toolbarTitle") ? options.getString("toolbarTitle") : "";
 
             String toolbarColor = options.getString("toolbarColor");
