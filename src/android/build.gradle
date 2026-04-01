@@ -1,9 +1,14 @@
-repositories {
-    flatDir {
-        dirs "src/main/libs"
+buildscript {
+    repositories {
+        maven { url "https://www.jitpack.io" }
     }
 }
 
+repositories {
+    maven { url "https://www.jitpack.io" }
+}
+
 dependencies {
-    implementation(name: 'android-crop-custom', ext: 'aar')
+    implementation 'com.github.yalantis:ucrop:2.2.11'
+    implementation 'androidx.activity:activity-ktx:1.9.0' 
 }
