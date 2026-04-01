@@ -6,9 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 
-import com.yalantis.ucrop.UCrop;
-import com.yalantis.ucrop.UCropActivity;
-import com.yalantis.ucrop.model.AspectRatio;
+import com.soundcloud.android.crop.Crop;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -19,8 +17,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 
-import android.graphics.Color;
-
 public class CropPlugin extends CordovaPlugin {
     private CallbackContext callbackContext;
     private Uri inputUri;
@@ -28,79 +24,44 @@ public class CropPlugin extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
-        if (action.equals("cropImage")) {
-            String imagePath = args.getString(0);
-            JSONObject options = args.getJSONObject(1);
-            int targetWidth = options.getInt("targetWidth");
-            int targetHeight = options.getInt("targetHeight");
-            boolean allowRotate = options.has("allowRotate") ? options.getBoolean("allowRotate") : false;
-            boolean keepCropAspectRatio = options.has("keepCropAspectRatio") ? options.getBoolean("keepCropAspectRatio") : true;
-            boolean showCropGrid = options.has("showCropGrid") ? options.getBoolean("showCropGrid") : true;
-			boolean statusBarLight = options.has("statusBarLight") ? options.getBoolean("statusBarLight") : true;
-			boolean navigationBarLight = options.has("navigationBarLight") ? options.getBoolean("navigationBarLight") : true;
-            String toolbarTitle = options.has("toolbarTitle") ? options.getString("toolbarTitle") : "";
+      if (action.equals("cropImage")) {
+          String imagePath = args.getString(0);
+          JSONObject options = args.getJSONObject(1);
+          int targetWidth = options.getInt("targetWidth");
+          int targetHeight = options.getInt("targetHeight");
 
-            String toolbarColor = options.getString("toolbarColor");
-            //String statusBarColor = options.getString("statusBarColor");
-			
-            String toolbarWidgetColor = options.getString("toolbarWidgetColor");
-            String rootViewBackgroundColor = options.getString("rootViewBackgroundColor");
-            String activeControlsWidgetColor = options.getString("activeControlsWidgetColor");
+          this.inputUri = Uri.parse(imagePath);
+          this.outputUri = Uri.fromFile(new File(getTempDirectoryPath() + "/" + System.currentTimeMillis()+ "-cropped.jpg"));
 
-            this.inputUri = Uri.parse(imagePath);
-            this.outputUri = Uri.fromFile(new File(getTempDirectoryPath() + "/" + System.currentTimeMillis()+ "-cropped.jpg"));
+          PluginResult pr = new PluginResult(PluginResult.Status.NO_RESULT);
+          pr.setKeepCallback(true);
+          callbackContext.sendPluginResult(pr);
+          this.callbackContext = callbackContext;
 
-            PluginResult pr = new PluginResult(PluginResult.Status.NO_RESULT);
-            pr.setKeepCallback(true);
-            callbackContext.sendPluginResult(pr);
-            this.callbackContext = callbackContext;
-
-            cordova.setActivityResultCallback(this);
-
-            UCrop.Options ucropOptions = new UCrop.Options();
-            
-            ucropOptions.setToolbarColor(Color.parseColor(toolbarColor));
-            ucropOptions.setStatusBarLight(statusBarLight);
-			ucropOptions.setNavigationBarLight(navigationBarLight);
-            ucropOptions.setToolbarWidgetColor(Color.parseColor(toolbarWidgetColor));
-            //ucropOptions.setRootViewBackgroundColor(Color.parseColor(rootViewBackgroundColor));
-            //ucropOptions.setActiveControlsWidgetColor(Color.parseColor(activeControlsWidgetColor));
-
-            ucropOptions.setFreeStyleCropEnabled(!keepCropAspectRatio);
-            ucropOptions.setShowCropGrid(showCropGrid);
-            ucropOptions.setToolbarTitle(toolbarTitle);            
-            if(targetHeight != -1 && targetHeight > 100 
-				&& targetWidth != -1 && targetWidth > 100) 
-			{
-				ucropOptions.setAspectRatioOptions(0, 
-					new AspectRatio(null, targetWidth/100, targetHeight/100));
-			}
-            
-            UCrop crop = UCrop.of(this.inputUri, this.outputUri)
-                    .withOptions(ucropOptions);
-
-            if(targetHeight != -1 && targetWidth != -1) {
-                crop.withMaxResultSize(targetWidth, targetHeight);
-                if(targetWidth == targetHeight) {
-                    crop.withAspectRatio(1, 1);
-                }
-            } else if(keepCropAspectRatio) {
-                crop.withAspectRatio(1, 1);
-            }
-            crop.start(cordova.getActivity());
-            return true;
-        }
-        return false;
+          cordova.setActivityResultCallback(this);
+          Crop crop = Crop.of(this.inputUri, this.outputUri);
+          if(targetHeight != -1 && targetWidth != -1) {
+              crop.withMaxSize(targetWidth, targetHeight);
+              if(targetWidth == targetHeight) {
+                  crop.asSquare();
+              }
+          } else {
+              crop.asSquare();
+          }
+          crop.start(cordova.getActivity());
+          return true;
+      }
+      return false;
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == UCrop.REQUEST_CROP) {
+        if (requestCode == Crop.REQUEST_CROP) {
             if (resultCode == Activity.RESULT_OK) {
-                Uri imageUri = UCrop.getOutput(intent);
+                Uri imageUri = Crop.getOutput(intent);
                 this.callbackContext.success("file://" + imageUri.getPath() + "?" + System.currentTimeMillis());
                 this.callbackContext = null;
-            } else if (resultCode == UCrop.RESULT_ERROR) {
+            } else if (resultCode == Crop.RESULT_ERROR) {
                 try {
                     JSONObject err = new JSONObject();
                     err.put("message", "Error on cropping");
@@ -129,15 +90,16 @@ public class CropPlugin extends CordovaPlugin {
         File cache = null;
 
         // SD Card Mounted
-        /*if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            cache = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                    "/Android/data/" + cordova.getActivity().getPackageName() + "/cache/");
-        }
+        //if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+        //    cache = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+        //            "/Android/data/" + cordova.getActivity().getPackageName() + "/cache/");
+        //}
         // Use internal storage
-        else {
-            cache = cordova.getActivity().getCacheDir();
-        }*/
-		cache = cordova.getActivity().getCacheDir();
+        //else {
+        //    cache = cordova.getActivity().getCacheDir();
+        //}
+        //use internal storage only
+        cache = cordova.getActivity().getCacheDir();
 
         // Create the cache directory if it doesn't exist
         cache.mkdirs();
