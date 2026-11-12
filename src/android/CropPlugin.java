@@ -103,7 +103,9 @@ public class CropPlugin extends CordovaPlugin {
             } else if (resultCode == UCrop.RESULT_ERROR) {
                 try {
                     JSONObject err = new JSONObject();
-                    err.put("message", "Error on cropping");
+                    Throwable cause = UCrop.getError(intent);
+					err.put("message",
+					    cause != null ? cause.toString() : "Error on cropping");
                     err.put("code", String.valueOf(resultCode));
                     this.callbackContext.error(err);
                     this.callbackContext = null;
